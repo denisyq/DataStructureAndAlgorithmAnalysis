@@ -29,7 +29,7 @@ void initData(void){
     edge[3].u=2;edge[3].v=5;edge[3].cost=1;
     edge[4].u=5;edge[4].v=3;edge[4].cost=-3;
     edge[5].u=3;edge[5].v=6;edge[5].cost=1;
-    edge[6].u=6;edge[6].v=5;edge[6].cost=-1;//cause negative loop
+    edge[6].u=6;edge[6].v=5;edge[6].cost=6;//cause negative loop
 }
 //BellmanFord algorithm aims to edge while dijkstra aims to vertex.
 //BellmanFord adjacent matrix form will cause O(V*V*V)
@@ -45,17 +45,25 @@ public:
     }
     bool work(){
         dist_[src_]=0;
-        //except the src, has vertex-1 times to relax
-        //every time, relax every edge if any, O(V*E)
+        bool relax=false;
+        /* except the src, has vertex-1 times to relax
+           every time, relax every edge if any, O(V*E)
+           'relax' flag is set to find when no relax happens
+           which means no need to relax any more,then break
+           will cause flexibility decrease.
+        */
         for(int i=1;i<=vertex_-1;++i){
-            //cout<<"i="<<i<<"-----"<<endl;
+            cout<<"i="<<i<<"-----"<<endl;
+            relax=false;
             for(int j=0;j<NUM_EDGE;++j){
                 if(dist_[edge[j].u]+edge[j].cost < dist_[edge[j].v]){
                     dist_[edge[j].v] = dist_[edge[j].u]+edge[j].cost;
                     path_[edge[j].v] = edge[j].u;
-                    //cout<<edge[j].u<<"------>"<<edge[j].v<<endl;
+                    relax=true;;
+                    cout<<edge[j].u<<"------>"<<edge[j].v<<endl;
                 }
             }
+            if(!relax) break;
         }
         //check whether negative loop
         bool flag=true;
