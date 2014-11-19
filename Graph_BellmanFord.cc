@@ -34,6 +34,8 @@ void initData(void){
 //BellmanFord algorithm aims to edge while dijkstra aims to vertex.
 //BellmanFord adjacent matrix form will cause O(V*V*V)
 //BellmanFord adjacent list form will cause O(V*E)
+//Be sure understand vertex-1 times to get the relax results 
+//and up to V*E times, one more relax will get negative loop.
 class BellmanFord{
 public:
     BellmanFord(int n,int src):vertex_(n),src_(src){
@@ -43,8 +45,8 @@ public:
     }
     bool work(){
         dist_[src_]=0;
-        //except the src, has vertex-1 times to loop
-        //every time, loop every edge if any, O(V*E)
+        //except the src, has vertex-1 times to relax
+        //every time, relax every edge if any, O(V*E)
         for(int i=1;i<=vertex_-1;++i){
             //cout<<"i="<<i<<"-----"<<endl;
             for(int j=0;j<NUM_EDGE;++j){
