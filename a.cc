@@ -4,97 +4,94 @@
 #include <queue>
 using namespace std;
 
-int dataDirection[7][7]={
+/*int data[7][7]={
     {0,0,0,0,0,0,0},
-    {0,0,1,1,0,0,0},
-    {0,0,0,0,1,1,0},
-    {0,0,0,0,0,0,1},
+    {0,0,1,2,0,0,0},
+    {0,1,0,0,1,2,0},
+    {0,2,0,0,4,0,6},
+    {0,0,1,4,0,5,5},
+    {0,0,2,0,5,0,1},
+    {0,0,0,6,5,1,0} };
+    */
+int data[7][7]={
     {0,0,0,0,0,0,0},
-    {0,0,0,1,0,0,0},
-    {0,0,0,0,0,0,0},
-};
-typedef struct node{
-    int u;
-    int v;
-    int cost;
-}Node;
+    {0,100,1,2,100,100,100},
+    {0,1,100,100,1,2,100},
+    {0,2,100,100,4,100,6},
+    {0,100,1,4,100,5,5},
+    {0,100,2,100,5,100,1},
+    {0,100,100,6,5,1,100} };
 
-const int NUM_EDGE=6;
-Node edge[NUM_EDGE];
-
-void initData(void){
-    edge[0].u=1;edge[0].v=2;edge[0].cost=1;
-    edge[1].u=1;edge[1].v=3;edge[1].cost=1;
-    edge[2].u=2;edge[2].v=4;edge[2].cost=1;
-    edge[3].u=2;edge[3].v=5;edge[3].cost=1;
-    edge[4].u=5;edge[4].v=3;edge[4].cost=1;
-    edge[5].u=3;edge[5].v=6;edge[5].cost=1;
-}
-//BellmanFord algorithm aims to edge while dijkstra aims to vertex.
-//BellmanFord adjacent matrix form will cause O(V*V*V)
-//BellmanFord adjacent list form will cause O(V*E)
-class BellmanFord{
+class Floyd{
 public:
-    BellmanFord(int n,int src):vertex_(n),src_(src){
-        dist_.assign(vertex_+1,999);
-        visited_.assign(vertex_+1,0);
-        path_.assign(vertex_+1,0);
+    
+    Floyd(int n):num_(n){
+        //init path_[][]
+        path_ = new int *[num_+1];
+        for(int i=0;i<=num_;++i){
+            path_[i] = new int[num_+1];
+            for(int j=0;j<=num_;++j)
+                path_[i][j]=i;
+        }
     }
-    bool work(){
-        dist_[src_]=0;
-        //except the src, has vertex-1 times to loop
-        //every time, loop every edge if any, O(V*E)
-        for(int i=1;i<=vertex_-1;++i){
-            for(int j=0;j<NUM_EDGE;++j){
-                if(dist_[edge[j].u]+edge[j].cost < dist_[edge[j].v]){
-                    dist_[edge[j].v] = dist_[edge[j].u]+edge[j].cost;
-                    path_[edge[j].v] = edge[j].u;
+    ~Floyd(){
+        for(int i=0;i<=num_;++i)
+            delete[] path_[i];
+        delete[] path_;
+    }
+
+    void work(void){
+        for(int k=1;k<=num_;++k){
+            for(int i=1;i<=num_;++i){
+                for(int j=1;j<=num_;++j){
+                    if(data[i][j]>data[i][k]+data[k][j]){
+                        data[i][j] = data[i][k]+data[k][j];
+                        path_[i][j] = path_[k][j];
+                    }
                 }
             }
         }
-        //check whether negative loop
-        bool flag=true;
-        for(int i=1;i<=NUM_EDGE;++i){
-            if(dist_[edge[i].u]+edge[i].cost < dist_[edge[i].v]){
-                flag=false;
-                break;
-            }
-        }
-        return flag;
-        
     }
-
-    void printPath(int index){
+    void printTotalWeight(void){
+        for(int i=1;i<=num_;++i){
+            for(int j=1;j<=num_;++j){
+                cout<<" "<<data[i][j];
+            }
+            cout<<endl;
+        }
+    }
+    void printWeight(int src, int dest){
+        cout<<"from "<<src<<" to "<<dest<<",the SP is "<<data[src][dest]<<endl;
+    }
+    /*void printPath(int src, int dest){
         stack<int> s;
-        int i = index;
+        int i=dest;
         s.push(i);
-        while(i!=src_){
-            s.push(path_[i]);
-            i = path_[i];
-        }   
-        //data ready, print the stack
+        while(i != src){
+            i = path_[src][i];
+            s.push(path_[src][i]);
+        }
         while(!s.empty()){
-            cout<<"->"<<s.top();
+            cout<<s.top()<<" ";
             s.pop();
-        }   
+        }
         cout<<endl;
-    }   
- 
+    }
+    */
+    void printPath(int src, int dest){
+        while(
+    }
 private:
-    int vertex_;
-    int src_;
-    vector<int> dist_;
-    vector<int> visited_;
-    vector<int> path_;
+    int num_;
+    int** path_;
 };
 
 
 int main(void){
-    cout<<"------------"<<endl;
-    initData();
-    BellmanFord bell(6,1);
-    bell.work();
-    bell.printPath(6);
+    Floyd floyd(6);
+    floyd.work();
+    floyd.printWeight(4,5);
+    floyd.printPath(4,5);
     return 0;
 }
 
