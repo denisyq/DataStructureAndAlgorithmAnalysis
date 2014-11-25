@@ -50,17 +50,17 @@ public:
            every time, relax every edge if any, O(V*E)
            'relax' flag is set to find when no relax happens
            which means no need to relax any more,then break
-           will cause flexibility decrease.
+           will cause complexity decrease.
         */
         for(int i=1;i<=vertex_-1;++i){
-            cout<<"i="<<i<<"-----"<<endl;
+            //cout<<"i="<<i<<"-----"<<endl;
             relax=false;
             for(int j=0;j<NUM_EDGE;++j){
                 if(dist_[edge[j].u]+edge[j].cost < dist_[edge[j].v]){
                     dist_[edge[j].v] = dist_[edge[j].u]+edge[j].cost;
                     path_[edge[j].v] = edge[j].u;
                     relax=true;;
-                    cout<<edge[j].u<<"------>"<<edge[j].v<<endl;
+                    //cout<<edge[j].u<<"------>"<<edge[j].v<<endl;
                 }
             }
             if(!relax) break;
