@@ -1,97 +1,101 @@
 #include <iostream>
 #include <vector>
 #include <stack>
-#include <queue>
 using namespace std;
 
-/*int data[7][7]={
-    {0,0,0,0,0,0,0},
-    {0,0,1,2,0,0,0},
-    {0,1,0,0,1,2,0},
-    {0,2,0,0,4,0,6},
-    {0,0,1,4,0,5,5},
-    {0,0,2,0,5,0,1},
-    {0,0,0,6,5,1,0} };
-    */
-int data[7][7]={
-    {0,0,0,0,0,0,0},
-    {0,100,1,2,100,100,100},
-    {0,1,100,100,1,2,100},
-    {0,2,100,100,4,100,6},
-    {0,100,1,4,100,5,5},
-    {0,100,2,100,5,100,1},
-    {0,100,100,6,5,1,100} };
+    int data[7][7]={
+        {0,0,0,0,0,0,0},
+        {0,0,1,2,0,0,0},
+        {0,1,0,0,1,2,0},
+        {0,2,0,0,4,0,6},
+        {0,0,1,4,0,5,5},
+        {0,0,2,0,5,0,1},
+        {0,0,0,6,5,1,0} };
 
-class Floyd{
+//NOTE:
+//1. Dijkstra dij(vertex,src);
+//2. dij.work();
+class Dijkstra{
 public:
-    
-    Floyd(int n):num_(n){
-        //init path_[][]
-        path_ = new int *[num_+1];
-        for(int i=0;i<=num_;++i){
-            path_[i] = new int[num_+1];
-            for(int j=0;j<=num_;++j)
-                path_[i][j]=i;
-        }
+    Dijkstra(int n, int src):vertex_(n),src_(src){
+        visited_.assign(vertex_+1,0);
+        path_.assign(vertex_+1,0);
+        dist_.assign(vertex_+1,999);//999 could be INF
     }
-    ~Floyd(){
-        for(int i=0;i<=num_;++i)
-            delete[] path_[i];
-        delete[] path_;
-    }
+    void work(){
+        //init src_ data
+        visited_[src_]=true;
+        path_[src_]=src_;
+        dist_[src_]=0;
 
-    void work(void){
-        for(int k=1;k<=num_;++k){
-            for(int i=1;i<=num_;++i){
-                for(int j=1;j<=num_;++j){
-                    if(data[i][j]>data[i][k]+data[k][j]){
-                        data[i][j] = data[i][k]+data[k][j];
-                        path_[i][j] = path_[k][j];
-                    }
+        int min,next=src_;
+        for(int i=1;i<=vertex_;++i){
+            //go through around, update dist_ using minimun distance
+            for(int j=1;j<=vertex_;++j){
+                if(!visited_[j] && data[next][j] != 0 && dist_[next]+data[next][j]<dist_[j]){
+                    dist_[j]=dist_[next]+data[next][j];
+                    path_[j]=next;
                 }
             }
-        }
-    }
-    void printTotalWeight(void){
-        for(int i=1;i<=num_;++i){
-            for(int j=1;j<=num_;++j){
-                cout<<" "<<data[i][j];
+            min=999;
+            //find the next stop 
+            for(int k=1;k<=vertex_;++k){
+                if(!visited_[k] && dist_[k]<min){
+                    min=dist_[k];
+                    next=k;
+                }
             }
-            cout<<endl;
+            //found next and enable visited
+            //"next" is the another source stop
+            visited_[next]=true;
         }
     }
-    void printWeight(int src, int dest){
-        cout<<"from "<<src<<" to "<<dest<<",the SP is "<<data[src][dest]<<endl;
+    void getDistance(vector<int> &tmp){
+        tmp.assign(dist_.begin(),dist_.end());
     }
-    /*void printPath(int src, int dest){
+    void printDistance(int index){
+        cout<<"distance["<<index<<"]:"<<dist_[index]<<endl;
+    }
+    void printPath(int index){
         stack<int> s;
-        int i=dest;
+        int i = index;
         s.push(i);
-        while(i != src){
-            i = path_[src][i];
-            s.push(path_[src][i]);
+        while(path_[i]!=src_){
+            s.push(path_[i]);
+            i = path_[i];
         }
+        s.push(src_);
+        //data ready, print the stack
         while(!s.empty()){
-            cout<<s.top()<<" ";
+            cout<<"->"<<s.top();
             s.pop();
         }
         cout<<endl;
     }
-    */
-    void printPath(int src, int dest){
-        while(
+    void printVec(vector<int> vec){
+        vector<int>::iterator it=vec.begin()+1;
+        for(;it!=vec.end();++it)
+            cout<<*it<<" ";
+        cout<<endl;
     }
 private:
-    int num_;
-    int** path_;
+    vector<int> visited_;
+    vector<int> path_;
+    vector<int> dist_;
+    int vertex_;//how many vertex
+    int src_;//fron src
 };
 
 
+    
+
 int main(void){
-    Floyd floyd(6);
-    floyd.work();
-    floyd.printWeight(4,5);
-    floyd.printPath(4,5);
+    Dijkstra dij(6,1);
+    dij.work();
+    
+    dij.printDistance(6);
+    dij.printPath(6);
+   
     return 0;
 }
 
