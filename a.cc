@@ -3,6 +3,7 @@
 #include <stack>
 #include <algorithm>
 #include <climits>
+#include <queue>
 using namespace std;
 
 int data[7][7]={
@@ -25,7 +26,7 @@ public:
         visited_[src_]=true;
         path_[src_]=0;
         dist_[src_]=0;
-        
+
         int min,next=src_;
         for(int i=1;i<=vertex_;++i){
             for(int j=1;j<=vertex_;++j){
@@ -56,10 +57,30 @@ private:
     int vertex_;
     int src_;
 };
+    struct Node{
+        int src;
+        int dest;
+        int dist;
+    };
+    priority_queue<Node> ip;
+    bool operator < (Node node1, Node node2){
+        return node1.src>node2.src;
+    }
+    
 int main(void){
-    Prim prim(6,5);
-    prim.work();
-    prim.print();
+    //Prim prim(6,5);
+    //prim.work();
+    //prim.print();
+    Node node1,node2;
+    node1.dist=1;node1.src=1;node1.dest=1;
+    node2.dist=2;node2.src=2;node2.dest=2;
+    ip.push(node1);
+    ip.push(node2);
+
+    while(!ip.empty()){
+        cout<<ip.top().src<<endl;
+        ip.pop();
+    }
     return 0;
 }
 
