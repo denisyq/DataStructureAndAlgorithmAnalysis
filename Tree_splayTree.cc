@@ -21,7 +21,7 @@ class Splay{
 public:
     Splay();
     ~Splay();
-    Node* insert(int element);
+    void insert(int element);
     Node* remove(int element);
     Node* find(int element);
     void inOrder(void);
@@ -44,9 +44,8 @@ Splay::~Splay(){
     _makeEmpty(root);
 }
 
-Node* Splay::insert(int element){
+void Splay::insert(int element){
     root = _insert(root,element);
-    return root;
 }
 Node* Splay::remove(int element){
     root = _remove(root,element);
@@ -70,7 +69,7 @@ Node* Splay::_doSplay(Node* T,int element){
 
     n.left = n.right = NULL;
     l=r=&n;
-    cout<<"doSplay begin"<<endl;
+    //cout<<"doSplay begin"<<endl;
     while(1){
         if(element < T->data){
             if(T->left == NULL)
@@ -104,9 +103,9 @@ Node* Splay::_doSplay(Node* T,int element){
         r->left = T->right;
         T->left = n.right;
         T->right = n.left;
-    cout<<"++++++++++++++++++++++"<<endl;
-    cout<<"splay top "<<T->data<<endl;
-    cout<<"---------------------"<<endl;
+    //cout<<"++++++++++++++++++++++"<<endl;
+    //cout<<"splay top "<<T->data<<endl;
+    //cout<<"---------------------"<<endl;
     return T;
 }
 Node* Splay::_singleToRight(Node* T){
@@ -131,7 +130,7 @@ Node* Splay::_insert(Node* T, int element){
     Node* node = new Node;
     node->data = element;
     
-    cout<<"insert "<<element<< endl;
+    //cout<<"insert "<<element<< endl;
 
     if(T == NULL){
         node->left = node->right = NULL;
@@ -194,10 +193,12 @@ int main(){
     int a[7]={6,4,7,2,5,1,3};
     while(i++<6){
         splay->insert(a[i]);
-        cout<<"in main, display"<<endl;
         splay->inOrder();
         cout<<endl;
     }
+    
+    splay->remove(3);
+    splay->inOrder();
     return 0;  
 }  
 
