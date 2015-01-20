@@ -100,37 +100,21 @@ Node* BST::_findMax(Node* node){
     }
     return node;
 }
-int main(void){
-    BST bst;
-    int i=-1;
-    int a[7]={6,4,7,2,5,1,3};
-    //int a[7]={1,2,3,4,5,6,7};
-    //int a[7]={7,6,5,4,3,2,1};
-    while(i++<6){
-        bst.insert(a[i]);
-        bst.inOrder();
-        cout<<endl;
-    }
-    Node* tmp = bst.find(4);
-    cout<<tmp->key<<endl;
-
-
-    return 0;
-}
 Node* BST::remove(int key){
 	_root = _remove(_root,key);
+	return _root;
 }
 Node* BST::_remove(Node* node, int key){
 	if(node == NULL) return NULL;
-	else if( key < node->data)
+	else if( key < node->key)
 		node->left = _remove(node->left,key);
-	else if(key > node->data)
+	else if(key > node->key)
 		node->right = _remove(node->right,key);
 	else{
 		if(node->left != NULL && node->right != NULL){
 			Node* tmp = _findMin(node->right);
-			node->data = tmp->data;
-			return _remove(node->right,node->data);
+			node->key = tmp->key;
+			node->right =  _remove(node->right,node->key);
 		}
 		else{
 			Node* tmp = node;
@@ -140,8 +124,8 @@ Node* BST::_remove(Node* node, int key){
 				node = node->left;
 			delete tmp;
 		}
-
 	}
+	return node;
 }
 /*
 Node** deleteNode(Node**, Node**);
@@ -198,31 +182,29 @@ Node** deleteNode(Node** root, Node** node){
         return deleteNode(root,tmp);
     }
 }
-
+*/
 int main(void){
-    Node* root=NULL;
-    Node** tmp;
+	BST bst;
     int i=-1;
-    int a[7]={6,4,7,2,5,1,3};
-    //int a[7]={1,2,3,4,5,6,7};
+    //int a[7]={6,4,7,2,5,1,3};
+    int a[7]={1,2,3,4,5,6,7};
     //int a[7]={7,6,5,4,3,2,1};
     while(i++<6){
-        insert(&root,NULL,a[i]);
-        inOrder(root);
+        bst.insert(a[i]);
+        bst.inOrder();
         cout<<endl;
     }
 
     int j;
     cout<<"delete one number"<<endl;
     cin>>j;
-    tmp = deleteKey(&root,j);
-    if(*tmp != NULL)
-        cout<<(*tmp)->key<<endl;
-    inOrder(root);
+    Node* tmp = bst.remove(j);
+    if(tmp != NULL)
+        cout<<tmp->key<<endl;
+    bst.inOrder();
 
     return 0;
 }
-*/
 
 
 
