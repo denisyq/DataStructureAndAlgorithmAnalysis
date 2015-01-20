@@ -29,6 +29,8 @@ class BST{
         Node* _remove(Node* node, int key);
         void _makeEmpty(Node* node);
         void _inOrder(Node* node);
+		Node* _findMin(Node* node);
+		Node* _findMax(Node* node);
 
 };
 BST::BST(){
@@ -85,6 +87,19 @@ Node* BST::_find(Node* node, int key){
     else
         return node;
 }
+Node* BST::_findMin(Node* node){
+    if(node == NULL) return node;
+    else if(node->left == NULL) return node;
+    else
+        return _findMin(node->left);
+}
+Node* BST::_findMax(Node* node){
+    if(node != NULL){
+        while(node->right != NULL)
+            node = node->right;
+    }
+    return node;
+}
 int main(void){
     BST bst;
     int i=-1;
@@ -102,20 +117,33 @@ int main(void){
 
     return 0;
 }
+Node* BST::remove(int key){
+	_root = _remove(_root,key);
+}
+Node* BST::_remove(Node* node, int key){
+	if(node == NULL) return NULL;
+	else if( key < node->data)
+		node->left = _remove(node->left,key);
+	else if(key > node->data)
+		node->right = _remove(node->right,key);
+	else{
+		if(node->left != NULL && node->right != NULL){
+			Node* tmp = _findMin(node->right);
+			node->data = tmp->data;
+			return _remove(node->right,node->data);
+		}
+		else{
+			Node* tmp = node;
+			if(node->left == NULL)
+				node = node->right;
+			else
+				node = node->left;
+			delete tmp;
+		}
+
+	}
+}
 /*
-Node** findMin(Node** node){
-    if(*node == NULL) return node;
-    else if((*node)->left == NULL) return node;
-    else
-        return findMin(&(*node)->left);
-}
-Node** findMax(Node** node){
-    if(*node != NULL){
-        while((*node)->right != NULL)
-            node = &(*node)->right;
-    }
-    return node;
-}
 Node** deleteNode(Node**, Node**);
 Node** deleteKey(Node** root, int key){
     if(*root == NULL) return NULL;
