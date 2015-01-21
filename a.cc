@@ -1,7 +1,3 @@
-  
-  /* splay Tree, one time search may O(n), after
-   * M times search, could reach Mlog(n), so average is log(n)
-   */
 #include <iostream>
 #include <vector>
 #include <stack>
@@ -11,195 +7,182 @@
 #include <memory.h>
 using namespace std;
 
+const int RED = 1;
+const int BLACK = 2;
+
 typedef struct node{
-    struct node* left;
-    struct node* right;
-    int data;
+    int key;
+    int color;
+    struct node *left;
+    struct node *right;
+    struct node *parent;
 }Node;
 
-class Splay{
-public:
-    Splay();
-    ~Splay();
-    Node* insert(int element);
-    Node* remove(int element);
-    Node* find(int element);
-    void inOrder(void);
-private:
-    Node* root;
-    Node* _insert(Node* root, int element);
-    Node* _remove(Node* root, int element);
-    Node* _find(Node* root, int element);
-    Node* _singleToRight(Node* T);
-    Node* _singleToLeft(Node* T);
-    Node* _doSplay(Node* T,int element);
-    void _makeEmpty(Node* root);
-    void _inOrder(Node* root);
+class RBTree{
+    public:
+        RBTree();
+        ~RBTree();
+        void inOrder(void);
+        void insert(int key);
+        Node* find(int key);
+        Node* remove(int key);
+    private:
+        Node* _root;
+        Node* _insert(Node* node, Node* parent, int key);
+        Node* _find(Node* node, int key);
+        Node* _remove(Node* node, int key);
+        void _makeEmpty(Node* node);
+        void _inOrder(Node* node);
+		Node* _findMin(Node* node);
+		Node* _findMax(Node* node); 
+        Node* _rebalance(Node* node);
 };
-
-Splay::Splay(){
-    root = NULL;
+RBTree::RBTree(){
+    _root = NULL;
 }
-Splay::~Splay(){
-    _makeEmpty(root);
+RBTree::~RBTree(){
+    _makeEmpty(_root);
 }
-
-Node* Splay::insert(int element){
-    root = _insert(root,element);
-    return root;
-}
-Node* Splay::remove(int element){
-    root = _remove(root,element);
-}
-Node* Splay::find(int element){
-    root = _find(root,element);
-}
-void Splay::inOrder(void){
-    _inOrder(root);
-}
-void Splay::_inOrder(Node* root){
+void RBTree::_inOrder(Node* root){
     if(root != NULL){
         _inOrder(root->left);
-        cout<<root<<"-"<<root->data<<endl;
+        cout<<" "<<root<<"-"<<root->key<<endl;
         _inOrder(root->right);
-    }   
-}
-Node* Splay::_doSplay(Node* T,int element){
-    Node n, *l,*r;
-    if(T == NULL) return T;
-
-    n.left = n.right = NULL;
-    l=r=&n;
-    cout<<"doSplay begin"<<endl;
-    while(1){
-        if(element < T->data){
-            if(T->left == NULL)
-                break;
-            if(element < T->left->data)
-                T = _singleToRight(T);
-            if(T->left == NULL)
-                break;
-            //chop right
-            r->left = T;
-            r = T;
-            T = T->left;
-        }
-        else if(element> T->data){
-            if(T->right == NULL)
-                break;
-            if(element> T->right->data)
-                T = _singleToLeft(T);
-            if(T->right == NULL)
-                break;
-            //left link
-            l->right = T;
-            l = T;
-            T = T->right;
-        }
-        else
-            break;
     }
-        //assemble
-        l->right = T->left;
-        r->left = T->right;
-        T->left = n.right;
-        T->right = n.left;
-    cout<<"++++++++++++++++++++++"<<endl;
-    cout<<"splay top "<<T->data<<endl;
-    cout<<"---------------------"<<endl;
-    return T;
 }
-Node* Splay::_singleToRight(Node* T){
-    Node *p;
-    p = T->left;
-    T->left = p->right;
-    p->right = T;
-    return p;
+void RBTree::inOrder(void){
+    _inOrder(_root);
 }
-Node* Splay::_singleToLeft(Node* T){
-    Node *p,*q,*k;
-    p = T;
-    q = T->right;
-    k = q->left;
-    p->right = k;
-    q->left = p;
-    T = q;
-    return T;
-}
-
-Node* Splay::_insert(Node* T, int element){
-    Node* node = new Node;
-    node->data = element;
-    
-    cout<<"insert "<<element<< endl;
-
-    if(T == NULL){
-        node->left = node->right = NULL;
-        T = node;
-    }
+void RBTree::_makeEmpty(Node* root){
+    if(root == NULL) return;
     else{
-        T = _doSplay(T,element);
-        if(element > T->data){
-            node->left = T;
-            node->right = T->right;
-            T->right = NULL;
-            T = node;
-        }
-        else if(element < T->data){
-            node->left = T->left;
-            node->right = T;
-            T->left = NULL;
-            T = node;
-        }
-        else
-            delete node;
+        _makeEmpty(root->left);
+        _makeEmpty(root->right);
     }
-    return T;
+    delete root;
 }
-Node* Splay::_remove(Node* T, int element){
-    Node* tmp;
-    if(T == NULL) return NULL;
+void RBTree::insert(int key){
+    _root = _insert(_root,NULL,key);
+}
 
-    T = _doSplay(T,element);
+Node* RBTree::_rebalance(Node* node){
+    while(node != _root && node->parent->color == RED){
+        if(node->parent == node->parent->parent->left){
+            Node* uncle = node->parent->parent->right;
+            if(uncle && uncle->color == RED){
+                node->parent->color = BLACK;
+                uncle->color = BLACK;
+                node->parent->parent->color = RED;
+                node = node->parent->parent;
+            }else{
+                if(node == node->parent->right){
+                    singleRotateToLeft(node);
+                }
 
-    if( element == T->data){
-        if(T->left == NULL)//find max from
-            tmp = T->right;
-        else{
-            tmp = _doSplay(T->left,element);
-            tmp->right = T->right;
+
+            }
+        }else{
+
         }
-        delete T;
-        T = tmp;
     }
-    return T;
+
+    _root->color = BLACK;
+
 }
-Node* Splay::_find(Node* T, int element){
-    T = _doSplay(T,element);
-    if(element == T->data)
-        return T;
-    else 
-        return NULL;
-}
-void Splay::_makeEmpty(Node* T){
-    if(T != NULL){
-        _makeEmpty(T->left);
-        _makeEmpty(T->right);
-        delete T;
+Node* RBTree::_insert(Node* node, Node* parent, int key){
+    if(node == NULL){
+        node = new Node;
+        node->left = node->right = NULL;
+        node->parent = parent;
+        node->color = RED;
+        node->key = key;
+        node = _rebalance(node);
     }
+    else if( key < node->key){
+        node->left  = _insert(node->left,node,key);
+    }
+    else if( key > node->key){
+        node->right = _insert(node->right,node,key);
+    }
+    return  node;
 }
-int main(){
-    Splay *splay = new Splay;
-    int i = -1;
+
+Node* RBTree::find(int key){
+    return _find(_root,key);
+}
+Node* RBTree::_find(Node* node, int key){
+    if(node == NULL) return NULL;
+    if(key < node->key)
+        return _find(node->left,key);
+    else if(key > node->key)
+        return _find(node->right,key);
+    else
+        return node;
+}
+Node* RBTree::_findMin(Node* node){
+    if(node == NULL) return node;
+    else if(node->left == NULL) return node;
+    else
+        return _findMin(node->left);
+}
+Node* RBTree::_findMax(Node* node){
+    if(node != NULL){
+        while(node->right != NULL)
+            node = node->right;
+    }
+    return node;
+}
+Node* RBTree::remove(int key){
+	_root = _remove(_root,key);
+	return _root;
+}
+Node* RBTree::_remove(Node* node, int key){
+	if(node == NULL) return NULL;
+	else if( key < node->key)
+		node->left = _remove(node->left,key);
+	else if(key > node->key)
+		node->right = _remove(node->right,key);
+	else{
+		if(node->left != NULL && node->right != NULL){
+			Node* tmp = _findMin(node->right);
+			node->key = tmp->key;
+			node->right =  _remove(node->right,node->key);
+		}
+		else{
+			Node* tmp = node;
+			if(node->left == NULL)
+				node = node->right;
+			else
+				node = node->left;
+			delete tmp;
+		}
+	}
+	return node;
+}
+int main(void){
+	RBTree bst;
+    int i=-1;
     int a[7]={6,4,7,2,5,1,3};
+    //int a[7]={1,2,3,4,5,6,7};
+    //int a[7]={7,6,5,4,3,2,1};
     while(i++<6){
-        splay->insert(a[i]);
-        cout<<"in main, display"<<endl;
-        splay->inOrder();
+        bst.insert(a[i]);
+        bst.inOrder();
         cout<<endl;
     }
-    return 0;  
-}  
+
+    int j;
+    cout<<"delete one number"<<endl;
+    cin>>j;
+    Node* tmp = bst.remove(j);
+    if(tmp != NULL)
+        cout<<tmp->key<<endl;
+    bst.inOrder();
+
+    return 0;
+}
+
+
 
 
 
