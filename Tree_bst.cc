@@ -42,7 +42,7 @@ BST::~BST(){
 void BST::_inOrder(Node* root){
     if(root != NULL){
         _inOrder(root->left);
-        cout<<" "<<root<<"-"<<root->key<<endl;
+        cout<<" "<<root<<"-"<<root->key<<" left="<<root->left<<" right="<<root->right<<endl;
         _inOrder(root->right);
     }
 }
@@ -104,6 +104,8 @@ Node* BST::remove(int key){
 	_root = _remove(_root,key);
 	return _root;
 }
+//remove using recursive, can avoid node->parent config
+//basiclly, do not forget node->parent config.
 Node* BST::_remove(Node* node, int key){
 	if(node == NULL) return NULL;
 	else if( key < node->key)
@@ -130,9 +132,9 @@ Node* BST::_remove(Node* node, int key){
 int main(void){
 	BST bst;
     int i=-1;
-    int a[7]={6,4,7,2,5,1,3};
+    //int a[7]={6,4,7,2,5,1,3};
     //int a[7]={1,2,3,4,5,6,7};
-    //int a[7]={7,6,5,4,3,2,1};
+    int a[7]={7,6,5,4,3,2,1};
     while(i++<6){
         bst.insert(a[i]);
         bst.inOrder();

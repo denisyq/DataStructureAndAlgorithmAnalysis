@@ -23,21 +23,18 @@ class RBTree{
         RBTree();
         ~RBTree();
         void inOrder(void);
+        void print(void);
         void insert(int key);
-        Node* find(int key);
-        Node* remove(int key);
     private:
         Node* _root;
+        void _print(Node* node);
         void _insert(Node* node, Node* parent, int key);
-        Node* _find(Node* node, int key);
-        Node* _remove(Node* node, int key);
         void _makeEmpty(Node* node);
         void _inOrder(Node* node);
-		Node* _findMin(Node* node);
-		Node* _findMax(Node* node); 
-        Node* _rebalance(Node* node);
-        Node* _leftRotate(Node* node);
-        Node* _rightRotate(Node* node);
+        void _rebalance(Node* node);
+        void _leftRotate(Node* node);
+        void _rightRotate(Node* node);
+        //delete has 4 modes, did not write down
 };
 RBTree::RBTree(){
     _root = NULL;
@@ -53,7 +50,26 @@ void RBTree::_inOrder(Node* root){
     }
 }
 void RBTree::inOrder(void){
+    //cout<<"InOrder+++++++++++++"<<endl;
     _inOrder(_root);
+}
+void RBTree::_print(Node* node){
+    queue<Node*> iq;
+    if(node != NULL) iq.push(node);
+    while(!iq.empty()){
+        Node* data = iq.front();
+        cout<<data->color<<"  " <<data->key<<endl;
+        iq.pop();
+        if(data->left != NULL)
+            iq.push(data->left);
+        if(data->right != NULL)
+            iq.push(data->right);
+    }
+
+}
+void RBTree::print(void){
+    //cout<<"per depth+++++++++++++"<<endl;
+    _print(_root);
 }
 void RBTree::_makeEmpty(Node* root){
     if(root == NULL) return;
@@ -66,19 +82,36 @@ void RBTree::_makeEmpty(Node* root){
 void RBTree::insert(int key){
     _insert(_root,NULL,key);
 }
-Node* RBTree::_leftRotate(Node* node){
-    Node* p = node->right;
-    node->right = p->left;
-    p->left = node;
-    return p;
+
+//similar to STL
+void RBTree::_leftRotate(Node* x){
+    Node* y = x->right;
+    x->right = y->left;
+    if(y->left != NULL)
+        y->left->parent = x;
+    if(x == _root) _root=y;
+    else if( x == x->parent->left)
+        x->parent->left = y;
+    else
+        x->parent->right = y;
+    y->left = x;
+    x->parent = y;
 }
-Node* RBTree::_rightRotate(Node* node){
-    Node* p = node->left;
-    node->left = p->right;
-    p->right = node;
-    return p;
+void RBTree::_rightRotate(Node* x){
+    Node* y = x->left;
+    x->left = y->right;
+    if(y->right != NULL)
+        y->right->parent = x;
+    if(x == _root) _root=y;
+    else if(x == x->parent->left)
+        x->parent->left = y;
+    else
+        x->parent->right = y;
+
+    y->right = x;
+    x->parent = y;
 }
-Node* RBTree::_rebalance(Node* node){
+void RBTree::_rebalance(Node* node){
     while(node != _root && node->parent->color == RED){
         if(node->parent == node->parent->parent->left){//left branch
             Node* uncle = node->parent->parent->right;
@@ -89,11 +122,13 @@ Node* RBTree::_rebalance(Node* node){
                 node = node->parent->parent;
             }else{//parent RED, uncle BLACK, grandpa BLACK-->change parent/grandpa,rotate
                 if(node == node->parent->right)
-                    node->parent->parent->left = _leftRotate(node->parent);
+                   // node->parent->parent->left = _leftRotate(node->parent);
+                   _leftRotate(node->parent);
                 node->parent->color = BLACK;
                 node->parent->parent->color = RED;
-                _rightRotate(node->parent->parent);
-            }
+                Node* grandpa = node->parent->parent;
+                _rightRotate(grandpa);
+            }   
         }else{//right branch,similar action
             Node* uncle = node->parent->parent->left;
             if(uncle && uncle->color == RED){
@@ -101,20 +136,21 @@ Node* RBTree::_rebalance(Node* node){
                 uncle->color = BLACK;
                 node->parent->parent->color = RED;
                 node = node->parent->parent;
-            }
+            }   
             else{
                 if(node == node->parent->left)
                     _rightRotate(node->parent);
                 node->parent->color = BLACK;
                 node->parent->parent->color = RED;
-                _leftRotate(node->parent->parent);
-
-            }
-        }
-    }
+                Node* grandpa = node->parent->parent;
+                _leftRotate(grandpa);
+            }   
+        }   
+    }   
     _root->color = BLACK;
 
 }
+
 void RBTree::_insert(Node* node, Node* parent, int key){
     while(node != NULL){
         parent = node;
@@ -123,7 +159,7 @@ void RBTree::_insert(Node* node, Node* parent, int key){
         }else if(key>node->key){
             node = node->right;
         }else
-            break;
+            return ;
     }
     if(node == NULL){
         node = new Node;
@@ -142,58 +178,6 @@ void RBTree::_insert(Node* node, Node* parent, int key){
     _rebalance(node);
 }
 
-Node* RBTree::find(int key){
-    return _find(_root,key);
-}
-Node* RBTree::_find(Node* node, int key){
-    if(node == NULL) return NULL;
-    if(key < node->key)
-        return _find(node->left,key);
-    else if(key > node->key)
-        return _find(node->right,key);
-    else
-        return node;
-}
-Node* RBTree::_findMin(Node* node){
-    if(node == NULL) return node;
-    else if(node->left == NULL) return node;
-    else
-        return _findMin(node->left);
-}
-Node* RBTree::_findMax(Node* node){
-    if(node != NULL){
-        while(node->right != NULL)
-            node = node->right;
-    }
-    return node;
-}
-Node* RBTree::remove(int key){
-	_root = _remove(_root,key);
-	return _root;
-}
-Node* RBTree::_remove(Node* node, int key){
-	if(node == NULL) return NULL;
-	else if( key < node->key)
-		node->left = _remove(node->left,key);
-	else if(key > node->key)
-		node->right = _remove(node->right,key);
-	else{
-		if(node->left != NULL && node->right != NULL){
-			Node* tmp = _findMin(node->right);
-			node->key = tmp->key;
-			node->right =  _remove(node->right,node->key);
-		}
-		else{
-			Node* tmp = node;
-			if(node->left == NULL)
-				node = node->right;
-			else
-				node = node->left;
-			delete tmp;
-		}
-	}
-	return node;
-}
 int main(void){
 	RBTree bst;
     int i=-1;
@@ -202,18 +186,12 @@ int main(void){
     //int a[7]={7,6,5,4,3,2,1};
     while(i++<6){
         bst.insert(a[i]);
-        bst.inOrder();
+        //bst.inOrder();
+        bst.print();
         cout<<endl;
     }
-
-    int j;
-    cout<<"delete one number"<<endl;
-    cin>>j;
-    Node* tmp = bst.remove(j);
-    if(tmp != NULL)
-        cout<<tmp->key<<endl;
-    bst.inOrder();
-
+//        bst.inOrder();
+        //bst.print();
     return 0;
 }
 
