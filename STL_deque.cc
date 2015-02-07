@@ -26,14 +26,14 @@ first.empty();
 
 
 
-//operator
+//element access
 first[1];
 first.at(1);
 deque.front();
 deque.back();
 
 
-//modify
+//element modify
     //assign
     deque.assign(first.begin(),first.begin()+4);
     deque.assign(4,100)     [100,100,100,100]

@@ -16,22 +16,22 @@ first.end()
 second.rbegin()
 second.rend()
 
+// vector: element access
+first[1]
+first.at(1)
+first.front()
+first.back()
+
+
 // vector: capacity
 first.size()
 first.capacity()
 first.empty()
 first.reserve(100)
 	//resize, 2 ways
-	first.assign(5,10)    		// 10 10 10 10 10
+	//....first.assign(5,10)    		// 10 10 10 10 10
 	first.resize(3);			// 10 10 10
 	first,resize(6,100)			// 10 10 10 100 100 100
-
-
-// vector: element access
-first[1]
-first.at(1)
-first.front()
-first.back()
 
 
 // vector: element modify
@@ -45,23 +45,19 @@ first.back()
 	first.pop_back();
 
 	//insert, 3 ways
-	first.assign(5,10)				//10 10 10 10 10
-	second.assign(2,88)				//88 88 
-	iterator it = first.begin();
-	first.insert(it,100);			//100 10 10 10 10 10
-	it = first.begin();
-	first.insert(it+2,2,99);		//100 10 99 99 10 10 10 10
-	it = first.begin();
-	first.insert(it,second.first(),second.end()); //88 88 100 10 99 99 10 10 10 10
+    //..... first =[10 10 10 10 10]
+	first.insert(first.begin(),100);			//100 10 10 10 10 10
+	first.insert(first.begin(),2,99);		//99 99 100 10 10 10 10 10
+	first.insert(first.begin(),second.first(),second.end()); //88 88 100 10 99 99 10 10 10 10
 	
 	//erase, 2 ways
-	first = [1,2,3,4,5,6,7,8,9,10]
+    //..... first = [1,2,3,4,5,6,7,8,9,10]
 	first.erase(first.begin()+3)		//erase 4..... 1,2,3,,5,6,7,8,9,10
 	first.erase(first.begin(),first.begin()+3)		//5,6,7,8,9,10 erase 3 elements
 
 	//swap
-	first = [1,2,3]
-	second = [10,10,10]
+	//first = [1,2,3]
+	//second = [10,10,10]
 	first.swap(second)				//first=[10,10,10] second=[1,2,3]
 
 	//clear
