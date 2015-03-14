@@ -35,6 +35,12 @@ bool bigger(Meeting const& a, Meeting const& b){
     else
         return a.from>b.from;
 }
+bool small(Meeting const& a, Meeting const& b){
+    if(a.end != b.end)
+        return a.end < b.end;
+    else 
+        return a.from < b.from;
+}
 void printMeeting(Meeting meeting){
     cout<<meeting.tag<<" "<<meeting.from<<" "<<meeting.end<<endl;
 }
@@ -198,9 +204,12 @@ public:
                 meet_.tag = j;
                 container.push_back(meet_);
             }
-            sort(container.begin(),container.end(),bigger );
-            for(int j=1;j<=container.size();j++){
-                
+            sort(container.begin(),container.end(),small );
+            for_each(container.begin(),container.end(),printMeeting);
+            vector<int> res[num_meeting];
+            int final[10000]={0};
+            for(int j=0;j<container.size();j++){
+                res[j].push_back(j); 
             }
         }
     }
@@ -240,7 +249,7 @@ int main(int argc, char* argv){
     int n;
     cin>>n;
     Solution solution(n);
-    solution.fix_2();
+    solution.fix_3();
 }
 /*
 3
