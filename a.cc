@@ -191,7 +191,81 @@ public:
             copyContainer.clear();
 
         }
-    }
+	}
+	void buildPath(int path[]){
+
+	}
+	//bool compatible(Meeting const& a, Meeting const& b){
+	bool compatible(int i, int j){
+		return container[i].end < container[j].from;
+	}
+	typedef struct node{
+		int data;
+		struct node* next;
+	}Node;
+	Node* store[10001];
+	void push(int i, int j){
+		//set store[j] with i
+		Node *node = new Node;
+		node->next=NULL;
+		node->data=i;
+		Node** tmp = &store[j];
+		while(*tmp != NULL) *tmp = (*tmp)->next;
+		*tmp = node;
+		cout<<"push "<<i<<" into "<<j<<endl;
+	}
+	void build(int final[], int path[]){
+		memset(final,1,10000);
+		memset(path,-1,10000);
+		for(int i=0;i<10001;i++) store[i] = NULL;
+
+		for(int i=0;i<num_meeting;i++){
+			for(int j=i;j<num_meeting;j++){
+				//cout<<"i= "<<i<<" j= "<<j<<endl;
+				if(compatible(i,j)){
+					push(i,j);
+				}
+			}
+		}
+		for(int i=0;i<num_meeting;i++){
+			cout<<"i= "<<i<<endl;
+			Node* tmp=store[i];
+			while(tmp!= NULL){
+				cout<<tmp->data<<" ";
+				tmp = tmp->next;
+			}
+			cout<<endl;
+		}
+		/*
+		for(int j=0;j<num_meeting;j++){
+			vector<int> iv;
+			for(int i=0;i<j;i++){
+				if(map[i][j])	iv.push_back(i);
+			}
+			int max=0;int index=0;
+			while(!iv.empty()){
+				if(final[iv.back()]>max) {
+					max=final[iv.back()];
+					index=iv.back();
+				}
+				iv.pop_back();
+			}
+			final[j]=max+1;
+			path[j]=index;
+		}
+		int tmp=0,index=0;
+		for(int k=num_meeting-1;k>=0;k--){
+			if(final[k]>tmp){
+				tmp=final[k];index=k;
+			}
+		}
+		while(index!=0){
+			cout<<container[index].tag<<" ";
+			index=path[index];
+		}
+		cout<<endl;
+		*/
+	}
     void fix_3(void){//graph color
         for(int i=0;i<num_case;i++){
             cout<<"Case #"<<i+1<<endl;
@@ -204,13 +278,14 @@ public:
                 meet_.tag = j;
                 container.push_back(meet_);
             }
-            sort(container.begin(),container.end(),small );
-            for_each(container.begin(),container.end(),printMeeting);
-            vector<int> res[num_meeting];
+            sort(container.begin(),container.end(),small);
+			for(int i=0;i<num_meeting;i++)
+				cout<<container[i].tag<<"    "<<container[i].from<< " "<<container[i].end<<endl;
+            //for_each(container.begin(),container.end(),printMeeting);
+            //vector<int> res[num_meeting];
             int final[10000]={0};
-            for(int j=0;j<container.size();j++){
-                res[j].push_back(j); 
-            }
+			int path[10000]={0};
+			build(final,path);
         }
     }
 private:
@@ -219,6 +294,7 @@ private:
     int num_meeting;
     int a,b,c,d;
     int from,end;
+	bool map[2001][2001];
     string output_2;
     string output[101];
     vector<Meeting> container;
@@ -244,7 +320,7 @@ private:
     }
 
 };
-int main(int argc, char* argv){
+int main(int argc, char** argv){
     freopen("input","r",stdin);
     int n;
     cin>>n;
